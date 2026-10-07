@@ -1,4 +1,4 @@
-const CACHE='stadsgraaf-v5';
+const CACHE='stadsgraaf-v6';
 
 self.addEventListener('install',event=>{
   event.waitUntil(
