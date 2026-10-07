@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 430">
+<rect width="1200" height="430" fill="#000"/>
+<g fill="#e75b3c" text-anchor="middle" font-family="Georgia,Times New Roman,serif">
+<text x="600" y="105" font-size="74">DE</text>
+<text x="600" y="275" font-size="190" font-weight="700" letter-spacing="-8">STADSGRAAF</text>
+<text x="600" y="335" font-size="40" font-weight="700" letter-spacing="15">BUURTCAFÉ</text>
+</g>
+<path d="M510 380 C530 355 550 355 570 380 S610 405 630 380 S670 355 690 380 S730 405 750 380 S790 355 810 380" fill="none" stroke="#e75b3c" stroke-width="10" stroke-linecap="round"/>
+</svg>
