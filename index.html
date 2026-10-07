@@ -35,53 +35,19 @@ let remote=false;
 async function sb(path,options={}){const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...SB_HEADERS,...(options.headers||{})}});if(!r.ok)throw Error(await r.text());return r.status===204?null:r.json()}
 async function pullRemote() {
   try {
-    const rows = await sb(
-      'checklist_tasks?select=id,category,name,note,sort_order&order=sort_order.asc'
-    );
-
+    const rows = await sb('checklist_tasks?select=id,category,name,note,sort_order&order=sort_order.asc');
     if (Array.isArray(rows) && rows.length > 0) {
-      tasks = rows.map(x => ({
-        id: String(x.id),
-        cat: x.category,
-        name: x.name,
-        note: x.note || ''
-      }));
-
-      persist();
-   async function pullRemote() {
-  try {
-    const rows = await sb(
-      'checklist_tasks?select=id,category,name,note,sort_order&order=sort_order.asc'
-    );
-
-    if (Array.isArray(rows) && rows.length > 0) {
-      tasks = rows.map(x => ({
-        id: String(x.id),
-        cat: x.category,
-        name: x.name,
-        note: x.note || ''
-      }));
+      tasks = rows.map(x => ({id:String(x.id),cat:x.category,name:x.name,note:x.note||''}));
       persist();
     } else {
-      // Database is nog leeg: standaardtaken centraal opslaan
       remote = true;
-      for (const t of tasks) {
-        await pushTask(t);
-      }
+      for (const t of tasks) await pushTask(t);
     }
-
-    const c = await sb(
-      'checklist_checks?select=task_id,checked&check_date=eq.' + today()
-    );
-
+    const c = await sb('checklist_checks?select=task_id,checked&check_date=eq.' + today());
     checks = {};
-    (c || []).forEach(x => {
-      checks[x.task_id] = x.checked;
-    });
-
+    (c || []).forEach(x => checks[x.task_id] = x.checked);
     remote = true;
     render();
-
   } catch (e) {
     console.error('Supabase fout:', e);
     remote = false;
@@ -119,4 +85,5 @@ $('import').onclick=()=>$('file').click();$('file').onchange=e=>{let r=new FileR
 $('date').textContent=new Date().toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 render();
+pullRemote();
 </script></body></html>
