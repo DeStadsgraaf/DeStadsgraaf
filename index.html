@@ -48,13 +48,46 @@ async function pullRemote() {
       }));
 
       persist();
+   async function pullRemote() {
+  try {
+    const rows = await sb(
+      'checklist_tasks?select=id,category,name,note,sort_order&order=sort_order.asc'
+    );
+
+    if (Array.isArray(rows) && rows.length > 0) {
+      tasks = rows.map(x => ({
+        id: String(x.id),
+        cat: x.category,
+        name: x.name,
+        note: x.note || ''
+      }));
+      persist();
     } else {
-      // Database is nog leeg: zet de standaardtaken centraal klaar
+      // Database is nog leeg: standaardtaken centraal opslaan
+      remote = true;
       for (const t of tasks) {
         await pushTask(t);
       }
     }
 
+    const c = await sb(
+      'checklist_checks?select=task_id,checked&check_date=eq.' + today()
+    );
+
+    checks = {};
+    (c || []).forEach(x => {
+      checks[x.task_id] = x.checked;
+    });
+
+    remote = true;
+    render();
+
+  } catch (e) {
+    console.error('Supabase fout:', e);
+    remote = false;
+    render();
+  }
+}
 async function pushTask(t){if(!remote)return;try{await sb('checklist_tasks?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:t.id,category:t.cat,name:t.name,note:t.note||'',sort_order:tasks.findIndex(x=>x.id===t.id)})})}catch(e){}}
 async function deleteRemote(id){if(!remote)return;try{await sb('checklist_tasks?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{Prefer:'return=minimal'}})}catch(e){}}
 async function pushCheck(id,value){if(!remote)return;try{await sb('checklist_checks?on_conflict=task_id,check_date',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({task_id:id,check_date:today(),checked:value})})}catch(e){}}
